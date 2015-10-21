@@ -98,13 +98,17 @@ let createCache = (cacheId, options) => {
     $$id: cacheId,
 
     destroy() {
-      clearInterval(this.$$cacheFlushIntervalId);
-      clearInterval(this.$$recycleFreqId);
       this.removeAll();
       if ($$storage) {
         $$storage().removeItem(`${this.$$prefix}.keys`);
         $$storage().removeItem(this.$$prefix);
       }
+      this.dispose();
+    },
+
+    dispose() {
+      clearInterval(this.$$cacheFlushIntervalId);
+      clearInterval(this.$$recycleFreqId);
       $$storage = null;
       $$data = null;
       $$lruHeap = null;
@@ -830,6 +834,13 @@ CacheFactory.keys = () => _keys(caches);
 CacheFactory.destroy = cacheId => {
   if (caches[cacheId]) {
     caches[cacheId].destroy();
+    delete caches[cacheId];
+  }
+};
+
+CacheFactory.dispose = cacheId => {
+  if (caches[cacheId]) {
+    caches[cacheId].dispose();
     delete caches[cacheId];
   }
 };
